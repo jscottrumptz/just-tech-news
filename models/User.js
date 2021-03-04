@@ -1,5 +1,8 @@
+// User class is an extension of this sequelize model
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
+// bcrypt is used for hashing the password
+const bcrypt = require('bcrypt');
 
 // create our User model
 class User extends Model {}
@@ -45,7 +48,28 @@ User.init(
             }
         }
     },
-    {
+    {   // The nested level of the hooks object is very important. 
+        // Notice that the hooks property was added to the second object in User.init().
+        // if hooks are not needed, just remove 'hooks:{},'
+        hooks: {
+            // set up beforeCreate lifecycle "hook" functionality
+            async beforeCreate(newUserData) {
+                // The async keyword is used as a prefix to the function that contains the asynchronous function. 
+                // await can be used to prefix the async function, which will then gracefully assign the value 
+                // from the response to the newUserData's password property. The newUserData is then returned 
+                // to the application with the hashed password.
+                newUserData.password = await bcrypt.hash(newUserData.password, 10);
+                return newUserData;
+            },
+            // set up beforeUpdate lifecycle "hook" functionality
+            async beforeUpdate(updatedUserData) {
+                // Before we can check to see if this hook is effective however, we must add an option to the 
+                // query call (user-routes.js). According to the Sequelize documentation regarding the beforeUpdate 
+                // (Links to an external site.), we will need to add the option { individualHooks: true }.
+                updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+                return updatedUserData;
+            }
+        },
         // TABLE CONFIGURATION OPTIONS GO HERE
         // (https://sequelize.org/v5/manual/models-definition.html#configuration))
 

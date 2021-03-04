@@ -81,6 +81,8 @@ router.put('/:id', (req, res) => {
     //                       WHERE id = 1;'
     // update a current user in the database
     User.update(req.body, {
+        // option set to true to enable bcrypt hashing of passwords
+        individualHooks: true,
         // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
         // We pass in req.body to provide the new data we want to use in the update 
         // and req.params.id to indicate where exactly we want that new data to be used.
