@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Post, User, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require('../../models');
 
 // call on special Sequelize functionality for /upvote
 // Sequelize provides us with a special method called .literal() that allows us to run 
@@ -28,6 +28,15 @@ router.get('/', (req,res) => {
         // include property is expressed as an array of objects. 
         // To define this object, we need a reference to the model and attributes
         include: [
+            // include the Comment model here:
+            {
+                model: Comment,
+                attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+                include: {
+                model: User,
+                attributes: ['username']
+                }
+            },
             {
                 model: User,
                 attributes: ['username']
@@ -55,6 +64,14 @@ router.get('/:id', (req, res) => {
             [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
         ],
         include: [
+            {
+                model: Comment,
+                attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+                include: {
+                    model: User,
+                    attributes: ['username']
+                }
+            },
             {
                 model: User,
                 attributes: ['username']
