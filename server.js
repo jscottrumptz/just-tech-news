@@ -26,4 +26,5 @@ sequelize.sync({ force:false }).then(() => {
 // This doesn't have to be included, but if it were set to true, it would drop and 
 // re-create all of the database tables on startup. This is great for when we make 
 // changes to the Sequelize models, as the database would need a way to understand 
-// that something has changed.
+// that something has changed. Also, By forcing the sync method to true, we will make 
+// the tables re-create if there are any association changes.
