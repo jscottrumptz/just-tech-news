@@ -1,8 +1,6 @@
 // import the sequelize constructor from library
 let Sequelize = require('sequelize');
 
-require('dotenv').config();
-
     // heroku connection
 if (process.env.JAWSDB_URL) {
     sequelize = new Sequelize(process.env.JAWSDB_URL);
