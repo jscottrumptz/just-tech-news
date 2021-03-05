@@ -4,7 +4,35 @@ const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
 // create the post model
-class Post extends Model {}
+class Post extends Model {
+    static upvote(body, models) {
+        return models.Vote.create({
+            user_id: body.user_id,
+            post_id: body.post_id
+        }).then(() => {
+            // then find the post we just voted on
+            return Post.findOne({
+                where: {
+                    id: body.post_id
+                },
+                attributes: [
+                    'id',
+                    'post_url',
+                    'title',
+                    'created_at',
+                    // use raw MySQL aggregate function query to get a count of how many votes the post has and return it under the name `vote_count`
+                    [
+                        sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+                        'vote_count'
+                    ]
+                    // Under some circumstances, built-in Sequelize methods can do just that—specifically 
+                    // one called .findAndCountAll(). Unfortunately, because we're counting an associated 
+                    // table's data and not the post itself, that method won't work here.
+                ]
+            });
+        });
+    }
+}
 
 // create feilds/columns for the Post model
 Post.init(

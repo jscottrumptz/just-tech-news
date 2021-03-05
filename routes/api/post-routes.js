@@ -1,5 +1,10 @@
 const router = require('express').Router();
-const { Post, User } = require('../../models');
+const { Post, User, Vote } = require('../../models');
+
+// call on special Sequelize functionality for /upvote
+// Sequelize provides us with a special method called .literal() that allows us to run 
+// regular SQL queries from within the Sequelize method-based queries.
+const sequelize = require('../../config/connection');
 
 // GET api/posts
 router.get('/', (req,res) => {
@@ -7,7 +12,13 @@ router.get('/', (req,res) => {
         // created_at and updated_at are auto generated unless we configure sequelize not to
         // in the Post model, we defined the column names to have an underscore naming convention by 
         // using the underscored: true, assignment. In Sequelize, columns are camelcase by default.
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        attributes: [
+            'id', 
+            'post_url', 
+            'title', 
+            'created_at',
+            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+        ],
 
         // use the order property to ensure that the latest news articles are shown first to the client
         // We can use the created_at column, which will display the most recently added posts first.
@@ -36,7 +47,13 @@ router.get('/:id', (req, res) => {
         where: {
                 id: req.params.id
         },
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        attributes: [
+            'id', 
+            'post_url', 
+            'title', 
+            'created_at',
+            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+        ],
         include: [
             {
                 model: User,
@@ -70,6 +87,19 @@ router.post('/', (req, res) => {
     .catch(err => {
         console.log(err);
         res.status(500).json(err);
+    });
+});
+
+// Make sure this PUT route is defined before the /:id PUT route. 
+// Otherwise, Express.js will think the word "upvote" is a valid parameter for /:id
+// PUT /api/posts/upvote
+router.put('/upvote', (req, res) => {
+    // custom static method created in models/Post.js
+    Post.upvote(req.body, { Vote })
+    .then(dbPostData => res.json(dbPostData))
+    .catch(err => {
+        console.log(err);
+        res.status(400).json(err);
     });
 });
 
