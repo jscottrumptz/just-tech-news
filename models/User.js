@@ -85,6 +85,11 @@ User.init(
         sequelize,
         // don't automatically create createdAt/updatedAt timestamp fields
         timestamps: false,
+        // By default, when the table name is not given, Sequelize automatically pluralizes the model 
+        // name and uses that as the table name. You can stop the auto-pluralization performed by Sequelize 
+        // using the freezeTableName: true option. This way, Sequelize will infer the table name to be 
+        // equal to the model name, without any modifications
+        freezeTableName: true,
         // use underscores instead of camel-casing (i.e. `comment_text` and not `commentText`)
         underscored: true,
         // make it so our model name stays lowercase in the database

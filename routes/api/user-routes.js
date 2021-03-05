@@ -4,7 +4,7 @@ const { User } = require('../../models');
 // GET /api/users
 router.get('/', (req, res) => {
     // access our User model and run .findAll() method
-    // similar to SQL query 'SELECT * FROM users;'
+    // similar to SQL query 'SELECT * FROM users;' users
     // select all users from the user table in the database
     User.findAll({
         // exclude a field when getting data
