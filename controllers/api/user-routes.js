@@ -93,7 +93,22 @@ router.post('/', (req, res) => {
         password: req.body.password
     })
     // insert the new user into the db and send it back as a json
-    .then(dbUserData => res.json(dbUserData))
+    .then(dbUserData => {
+        // This gives our server easy access to the user's user_id, 
+        // username, and a Boolean describing whether or not the user is logged in.
+        req.session.save(() => {
+            // We want to make sure the session is created before we send the response back, 
+            // so we're wrapping the variables in a callback. The req.session.save() method 
+            // will initiate the creation of the session and then run the callback function 
+            // once complete.
+            req.session.user_id = dbUserData.id;
+            req.session.username = dbUserData.username;
+            req.session.loggedIn = true;
+            
+            // send response as a json
+            res.json(dbUserData);
+        });
+    })
     // if there is an err catch it and send a response
     .catch(err => {
         console.log(err);
@@ -134,9 +149,33 @@ router.post('/login', (req, res) => {
             res.status(400).json({ message: 'Incorrect Password!' });
             return;
         }
-        res.json({ user: dbUserData, message: 'You are now logged in!' });
-    });
-  
+        // This gives our server easy access to the user's user_id, 
+        // username, and a Boolean describing whether or not the user is logged in.
+        req.session.save(() => {
+            // We want to make sure the session is created before we send the response back, 
+            // so we're wrapping the variables in a callback. The req.session.save() method 
+            // will initiate the creation of the session and then run the callback function 
+            // once complete.
+            req.session.user_id = dbUserData.id;
+            req.session.username = dbUserData.username;
+            req.session.loggedIn = true;
+            
+            // send response as a json
+            res.json({ user: dbUserData, message: 'You are now logged in!' });
+        });
+    }); 
+});
+
+// POST /api/logout
+router.post('/logout', (req, res) => {
+    if (req.session.loggedIn) {
+        req.session.destroy(() => {
+            res.status(204).end();
+            });
+        }
+        else {
+            res.status(404).end();
+        }
 });
 
 // PUT /api/users/1

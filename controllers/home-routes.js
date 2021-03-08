@@ -3,30 +3,33 @@ const sequelize = require('../config/connection');
 const { Post, User, Comment } = require('../models');
 
 router.get('/', (req, res) => {
+    // to console-log the session variables
+    console.log("TESTING" + req.session);
+
     Post.findAll({
-      attributes: [
+    attributes: [
         'id',
         'post_url',
         'title',
         'created_at',
         [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
-      ],
-      include: [
+    ],
+    include: [
         {
-          model: Comment,
-          attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
-          include: {
+        model: Comment,
+        attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+        include: {
             model: User,
             attributes: ['username']
-          }
+        }
         },
         {
-          model: User,
-          attributes: ['username']
+        model: User,
+        attributes: ['username']
         }
-      ]
+    ]
     })
-      .then(dbPostData => {
+    .then(dbPostData => {
         // This will loop over and map each Sequelize object into a serialized version of itself, 
         // saving the results in a new posts array. Now we can plug that array into the template
         const posts = dbPostData.map(post => post.get({ plain: true }));
@@ -43,11 +46,23 @@ router.get('/', (req, res) => {
         // that would prevent us from adding other properties to the template later on. 
         // To avoid future headaches, we can simply add the array to an object and continue 
         // passing an object to the template.
-      })
-      .catch(err => {
+    })
+    .catch(err => {
         console.log(err);
         res.status(500).json(err);
-      });
-  });
+    });
+});
+
+router.get('/login', (req, res) => {
+    console.log("TESTING" + req.session);
+    // redirect to homepage if login session exists
+    if (req.session.loggedIn) {
+        res.redirect('/');
+        return;
+    }
+
+    res.render('login');
+});
+
 
 module.exports = router;

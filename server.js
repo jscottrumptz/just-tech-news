@@ -3,6 +3,11 @@ const express = require('express');
 const routes = require('./controllers');
 const sequelize = require('./config/connection');
 
+// begin express session and sequelize store
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+// end express session and sequelize store
+
 // begin handlebars
 const exphbs = require('express-handlebars');
 const hbs = exphbs.create({});
@@ -13,6 +18,25 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// begin express session and sequelize store
+// This code sets up an Express.js session and connects the session to our Sequelize database. 
+// As you may be able to guess, "Super secret secret" should be replaced by an actual secret 
+// and stored in the .env file. All we need to do to tell our session to use cookies is to set 
+// cookie to be {}. If we wanted to set additional options on the cookie, like a maximum age, 
+// we would add the options to that object.
+const sess = {
+    secret: 'Super secret secret',
+    cookie: {},
+    resave: false,
+    saveUninitialized: true,
+    store: new SequelizeStore({
+        db:sequelize
+    })
+};
+
+app.use(session(sess));
+// end express session and sequelize store
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
