@@ -10,7 +10,8 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 // begin handlebars
 const exphbs = require('express-handlebars');
-const hbs = exphbs.create({});
+const helpers = require('./utils/helpers');
+const hbs = exphbs.create({ helpers });
 // end handlebars
 
 // for express middleware

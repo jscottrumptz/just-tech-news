@@ -1,0 +1,17 @@
+<!-- In Handlebars.js, we can use the trusty keyword this to refer to the parent object 
+or array that's available in the context of the partial. Data that's passed to a template 
+file is technically always part of this, but when dealing with objects, we can simply 
+access the object properties directly -e.g., vote_count instead of this.vote_count-. Because 
+arrays don't have named properties like objects do, we're forced to access the array as this. -->
+<div class="comments">
+  {{#each this}}
+  <section class="comment">
+    <div class="meta">
+      {{user.username}} on {{format_date created_at}}
+    </div>
+    <div class="text">
+      {{comment_text}}
+    </div>
+  </section>
+  {{/each}}
+</div>
