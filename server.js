@@ -1,6 +1,15 @@
+// express, routes, and sequelize
 const express = require('express');
-const routes = require('./routes');
+const routes = require('./controllers');
 const sequelize = require('./config/connection');
+
+// begin handlebars
+const exphbs = require('express-handlebars');
+const hbs = exphbs.create({});
+// end handlebars
+
+// for express middleware
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,6 +19,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // turn on routes
 app.use(routes);
+
+// built-in Express.js middleware function that can take all of the contents of a folder 
+// and serve them as static assets
+app.use(express.static(path.join(__dirname, 'public')));
+
+// begin handlebars
+app.engine('handlebars', hbs.engine);
+app.set('view engine', 'handlebars');
+// end handlebars
 
 // Note we're importing the connection to Sequelize from config/connection.js.
 // Then, at the bottom of the file, we use the sequelize.sync() method to establish the 
