@@ -72,7 +72,9 @@ Comment.belongsTo(User, {
 });
   
 Comment.belongsTo(Post, {
-    foreignKey: 'post_id'
+    foreignKey: 'post_id',
+    // so you can delete posts with comments on them
+    onDelete: 'cascade'
 });
   
 User.hasMany(Comment, {
